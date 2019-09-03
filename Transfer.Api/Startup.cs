@@ -1,21 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Bankings.Data.Context;
 using Infra.IoC;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Project.Domain.Core.Entities;
+using Project.Domain.Core.Bus;
 using Swashbuckle.AspNetCore.Swagger;
+using Transfer.Data.Context;
+using Transfer.Domain.EventHanlders;
+using Transfer.Domain.Events;
 
-namespace Banking.API
+namespace Transfer.Api
 {
     public class Startup
     {
@@ -27,12 +25,11 @@ namespace Banking.API
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<BankingDbContext>(options =>
+            services.AddDbContext<TransferDbContext>(options =>
             {
-                options.UseSqlServer(Configuration.GetConnectionString("BankingDbConnection"));
+                options.UseSqlServer(Configuration.GetConnectionString("TransferDbConnection"));
             }
             );
 
@@ -40,7 +37,7 @@ namespace Banking.API
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info { Title = "Banking microservice", Version = "v1" });
+                c.SwaggerDoc("v1", new Info { Title = "Transfer microservice", Version = "v1" });
             });
 
             services.AddMediatR(typeof(Startup));
@@ -60,19 +57,28 @@ namespace Banking.API
             {
                 app.UseDeveloperExceptionPage();
             }
+            else
+            {
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseHsts();
+            }
 
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Banking Microservice V1");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Transfer Microservice V1");
             });
 
-            //app.Run(async (context) =>
-            //{
-            //    await context.Response.WriteAsync("Microservice is active");
-            //});
-
+            app.UseHttpsRedirection();
             app.UseMvc();
+
+            ConfigureEventBus(app);        }
+
+        private void ConfigureEventBus(IApplicationBuilder app)
+        {
+            var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
+
+            eventBus.Subscribe<TransferCreatedEvent, TransferEventHandler>();
         }
     }
 }

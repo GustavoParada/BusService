@@ -1,5 +1,5 @@
-﻿using System.Threading.Tasks;
-using Project.Domain.Core.Bus;
+﻿using Project.Domain.Core.Bus;
+using System.Threading.Tasks;
 using Transfer.Domain.Events;
 using Transfer.Domain.Interfaces;
 using Transfer.Domain.Models;

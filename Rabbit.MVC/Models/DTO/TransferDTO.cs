@@ -9,6 +9,6 @@ namespace Rabbit.MVC.Models.DTO
     {
         public int FromAccount { get; set; }
         public int ToAccount { get; set; }
-        public decimal TransferAmout { get; set; }
+        public decimal TransferAmount { get; set; }
     }
 }

@@ -13,6 +13,6 @@ namespace Rabbit.MVC.Models
 
         public int ToAccount { get; set; }
 
-        public decimal TransferAmout { get; set; }
+        public decimal TransferAmount { get; set; }
     }
 }

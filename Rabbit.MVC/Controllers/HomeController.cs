@@ -42,7 +42,7 @@ namespace Rabbit.MVC.Controllers
             {
                 FromAccount = model.FromAccount,
                 ToAccount = model.ToAccount,
-                TransferAmout = model.TransferAmout
+                TransferAmount = model.TransferAmount
             };
 
             await _transferService.Transfer(transferDTO);

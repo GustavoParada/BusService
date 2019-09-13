@@ -4,8 +4,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Polly;
 using Rabbit.MVC.Services;
-
+using System;
 
 namespace Rabbit.MVC
 {
@@ -31,7 +32,13 @@ namespace Rabbit.MVC
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-            services.AddHttpClient<ITransferService, TransferService>();
+            services.AddHttpClient<ITransferService, TransferService>()
+                .AddTransientHttpErrorPolicy(builder => builder.WaitAndRetryAsync(new[]
+                {
+                    TimeSpan.FromSeconds(1),
+                    TimeSpan.FromSeconds(5),
+                    TimeSpan.FromSeconds(10)
+                }));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
